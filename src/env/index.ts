@@ -9,10 +9,13 @@ if (process.env.NODE_ENV === 'test') {
   config()
 }
 
+const HOST = 'RENDER' in process.env ? `0.0.0.0` : `localhost`
+
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('production'),
+  DATABASE_CLIENT: z.enum(['sqlite3', 'pg']),
   DATABASE_URL: z.string(),
-  PORT: z.number().default(3333),
+  PORT: z.coerce.number().default(3333),
 })
 
 const _env = envSchema.safeParse(process.env)
@@ -23,4 +26,4 @@ if (_env.success === false) {
   throw new Error('Invalid environment variables')
 }
 
-export const env = _env.data
+export const env = { ..._env.data, HOST }
